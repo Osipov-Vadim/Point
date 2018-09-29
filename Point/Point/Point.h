@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <initializer_list>
 #include <array>
+#include <utility>
 
 template<size_t N>
 class Point final {
@@ -20,6 +21,7 @@ public:
 	~Point();
 
 	constexpr size_t size()										const;
+	constexpr double lenght()									const;
 
 	constexpr inline double& operator[](size_t idx);
 	constexpr inline const double operator[](size_t idx)		const;
@@ -38,13 +40,12 @@ public:
 
 private:
 	std::array<double, N> _point;
-
 	
 	template<size_t I, size_t N>
-	friend constexpr auto& get(Point<N> &point);
+	friend constexpr auto& std::get(Point<N> &point);
 
 	template<size_t N>
-	friend constexpr auto& getArray(Point<N> &point);
+	friend constexpr std::array<double, N>& getArray(Point<N> &point);
 };
 
 
@@ -56,7 +57,7 @@ private:
 template<size_t N>
 constexpr inline Point<N>::Point()
 {
-
+	_point.fill(0.0);
 }
 
 template<size_t N>
@@ -95,6 +96,7 @@ template<size_t N>
 constexpr inline Point<N> & Point<N>::operator=(Point<N> && point)
 {
 	this->_point = std::move(point._point);
+	return *this;
 }
 
 template<size_t N>
@@ -109,6 +111,16 @@ template<size_t N>
 constexpr inline size_t Point<N>::size() const
 {
 	return N;
+}
+
+template<size_t N>
+inline constexpr double Point<N>::lenght() const
+{
+	double len = 0;
+	for (size_t i = 0; i < this->size(); ++i) {
+		len += pow(this->operator[](i), 2);
+	}
+	return sqrt(len);
 }
 
 template<size_t N>
@@ -210,33 +222,35 @@ constexpr inline bool Point<N>::operator==(const Point<N>& point)
 //-----------------------------------------------------
 
 template<class H, class ...Args>
-inline constexpr auto make_point(H h, Args...args) {
+inline constexpr Point<sizeof...(Args) + 1> make_point(H h, Args...args) {
 	Point<sizeof...(Args)+1> p;
 	_make_point_helper(p, 0, h, args...);
 	return p;
 }
 
 template<class Point, class H, class ...Args>
-inline constexpr auto _make_point_helper(Point &p, size_t i, H h, Args...args) {
+inline constexpr void _make_point_helper(Point &p, size_t i, H h, Args...args) {
 	p[i] = h;
 	_make_point_helper(p, i + 1, args...);
 }
 
 template<class Point, class H>
-inline constexpr auto _make_point_helper(Point &p, size_t i, H h)
+inline constexpr void _make_point_helper(Point &p, size_t i, H h)
 {
 	p[i] = h;
 }
 
-template<size_t I, size_t N>
-inline constexpr auto& get(Point<N> & point)
-{
-	static_assert(I >= 0 && I < N, "Out of range");
-	return std::get<I>(point._point);
+namespace std {
+	template<size_t I, size_t N>
+	inline constexpr auto& get(Point<N>& point)
+	{
+		static_assert(I >= 0 && I < N, "Out of range");
+		return std::get<I>(point._point);
+	}
 }
 
 template<size_t N>
-inline constexpr auto& getArray(Point<N>& point)
+inline constexpr std::array<double, N>& getArray(Point<N>& point)
 {
 	return point._point;
 }

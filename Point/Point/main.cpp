@@ -3,6 +3,7 @@
 #define _USE_MATH_DEFINES 
 
 #include <iostream>
+#include <vector>
 #include <iomanip> 
 #include <fstream>
 #include <array>
@@ -28,9 +29,10 @@ int main() {
 	std::cout << std::fixed << std::setprecision(4);
 	//--------------------------------
 
+	
 	auto point1 = make_point(1, 100, 3, 4, 5);
 	Point<5> point2 = make_point(0, 20, 2, 3, 4);
-	Point<5> point3 ({1.0 ,2.0, 3.0, 4.0, 5.0 });
+	Point<5> point3({ 1.0 ,2.0, 3.0, 4.0, 5.0 });
 	Point<5> point4 = { 1.0 ,2.0, 3.0, 4.0, 5.0, 6.0 };
 
 	cout_point(point3);
@@ -43,9 +45,11 @@ int main() {
 
 	point1 = point2;
 
-	std::cout << get<3>(point2) << '\n';
-	get<3>(point2) = -5;
-	std::cout << get<3>(point2) << '\n';
+
+	Point<5> c_point1 = { 3.0, 5.0, 1.0 };
+	std::cout << std::get<1>(c_point1) << '\n';
+	std::get<1>(c_point1) = -1;
+	std::cout << std::get<1>(c_point1) << '\n';
 
 	auto arr = getArray(point2);
 
@@ -53,8 +57,7 @@ int main() {
 		std::cout << arr[i] << ' ';
 	}
 	std::cout << '\n';
-	
-	std::array<int, 2> a = { 1,2 };
+
 
 	system("pause");
 	return 0;
