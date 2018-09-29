@@ -40,9 +40,12 @@ public:
 
 private:
 	std::array<double, N> _point;
-	
+
 	template<size_t I, size_t N>
-	friend constexpr auto& std::get(Point<N> &point);
+	friend constexpr double& std::get(Point<N> &point);
+
+	template<size_t I, size_t N>
+	friend constexpr double std::get(const Point<N> &point);
 
 	template<size_t N>
 	friend constexpr std::array<double, N>& getArray(Point<N> &point);
@@ -223,7 +226,7 @@ constexpr inline bool Point<N>::operator==(const Point<N>& point)
 
 template<class H, class ...Args>
 inline constexpr Point<sizeof...(Args) + 1> make_point(H h, Args...args) {
-	Point<sizeof...(Args)+1> p;
+	Point<sizeof...(Args) + 1> p;
 	_make_point_helper(p, 0, h, args...);
 	return p;
 }
@@ -242,7 +245,14 @@ inline constexpr void _make_point_helper(Point &p, size_t i, H h)
 
 namespace std {
 	template<size_t I, size_t N>
-	inline constexpr auto& get(Point<N>& point)
+	inline constexpr double& get(Point<N>& point)
+	{
+		static_assert(I >= 0 && I < N, "Out of range");
+		return std::get<I>(point._point);
+	}
+
+	template<size_t I, size_t N>
+	inline constexpr double get(const Point<N>& point)
 	{
 		static_assert(I >= 0 && I < N, "Out of range");
 		return std::get<I>(point._point);
